@@ -1,6 +1,7 @@
 import random
 import socket
 import json
+from threading import Thread
 
 """Итак, я хочу создавать объекты типа "Датчик", который может:
     1. обмениваться данными с агентом (клентом или другим сервером)
@@ -36,7 +37,7 @@ class Sensor:
         print(f"{self.__sensor_id} is run...")
         while True:
             request, address = self.sock.recvfrom(1024)
-            self.sock.sendto(b"pong", address)
+            self.sock.sendto(b"ping", address)
             print(request, *address)
             # return request, *address
 
@@ -44,4 +45,8 @@ class Sensor:
 if __name__ == "__main__":
     sens_id = "TEMPERATURE_SENSOR_" + str(777).rjust(4, "0")
     sensor_1 = Sensor("UDP_SERVER", sens_id, "localhost", 2222)
-    sensor_1.run()
+    sens_id = "TEMPERATURE_SENSOR_" + str(999).rjust(4, "0")
+    sensor_2 = Sensor("UDP_SERVER", sens_id, "localhost", 1111)
+    Thread(target=sensor_1.run).start()
+    Thread(target=sensor_2.run).start()
+
