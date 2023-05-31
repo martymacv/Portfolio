@@ -1,22 +1,47 @@
+import argparse
+import asyncio
 import socket
-from threading import Thread
+# import time
+# from threading import Thread
 
 
-udp_clients = [[socket.socket(socket.AF_INET, socket.SOCK_DGRAM), i] for i in range(2222, 2223)]
+class Controller:
+    """Контроллер способен одновременно (в многопоточном режиме)
+       опрашивать 10 устройств, которые производят различные измерения,
+       преобразуя их в элетрический сигнал (мА или мВ)"""
+    def __init__(self, ip="localhost", port=1024):
+        self.ip = ip
+        self.port = port
+    """Что должен уметь наш контроллер:
+       1. Отправлять get-запрос по UDP-сокету
+       2. Сохранять значение в базу"""
+    async def get(self):
+        print(F"Controller IP: {self.ip}, port: {self.port} is run...")
+        await asyncio.sleep(0.1)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind((self.ip, self.port))
+        sock.settimeout(10)
+        while True:
+            request = b"ping"
+            sock.sendto(request, (self.ip, self.port))
+            response = sock.recvfrom(1024)
+            print(response)
+            await asyncio.sleep(5)
 
 
-def func1(udp_client_):
-    udp_client_[0].settimeout(100)
-    udp_client_[0].sendto(b"Hello! i'm 1111", ("127.0.0.1", udp_client_[1]))
-    request, address = udp_client_[0].recvfrom(1024)
-    # udp_client.sendto(b"pong", address)
-    print(request, *address)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Script so useful.')
+    parser.add_argument("--sp", type=int, default=1024)
+    parser.add_argument("--qp", type=int, default=1)
 
+    args = parser.parse_args()
 
-for udp_client in udp_clients:
-    Thread(target=func1(udp_client)).start()
-# Thread(target=func2(udp_client.recvfrom(1024))).start()
+    start_port = args.sp
+    quantity_ports = args.qp
 
-# request, address = udp_client.recvfrom(1024)
-# udp_client.sendto(b"ping", address)
+    async def starter():
+        await asyncio.gather(*[Controller(port=i).get() for i in range(start_port, start_port + quantity_ports)])
+
+    asyncio.run(starter())
+
 
