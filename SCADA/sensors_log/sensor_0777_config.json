@@ -1,6 +1,6 @@
 {
     "type_server": "UDP_SERVER",
     "sensor_id": "TEMPERATURE_SENSOR_0777",
-    "ip": "localhost",
+    "ip": "",
     "port": 2222
 }
