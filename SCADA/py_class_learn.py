@@ -1,11 +1,16 @@
+import random
 import struct
 
 
 class Modbus:
     """MODBUS Aplication Protocol"""
-    # transaction_id = 0
-    # msg_length = 0
+    transaction_id = 0
+    msg_length = 5
     __instance = None  # нужно для паттерна singleton
+
+    @classmethod
+    def validate(cls, arg):
+        return cls.transaction_id <= arg <= cls.msg_length
 
     def __new__(cls, *args, **kwargs):  # метод для реализации паттерна singleton
         if cls.__instance is None:
@@ -34,9 +39,15 @@ class Modbus:
     def get_msg(self):
         return self.x, self.y
 
+    @staticmethod
+    def random_event_gen():
+        return random.randint(0, 10)
+
 
 if __name__ == "__main__":
     # Modbus.get_msg
+    print(Modbus.random_event_gen())
+    print(Modbus.validate(4))
     get_msg = Modbus(1, 3)
     # get_msg.set_msg(1, 2)
     print(get_msg.get_msg())
