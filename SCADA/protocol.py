@@ -3,21 +3,33 @@ import struct
 
 class Modbus:
     """MODBUS Aplication Protocol"""
-    transaction_id = 0
-    msg_length = 0
+    # transaction_id = 0
+    # msg_length = 0
+    __instance = None  # нужно для паттерна singleton
 
-    def __init__(self, x, y):
+    def __new__(cls, *args, **kwargs):  # метод для реализации паттерна singleton
+        if cls.__instance is None:
+            cls.__instance = super().__new__(cls)
+        print("Вызов __new__ для", str(cls))
+        return cls.__instance
+
+    # def __new__(cls, *args, **kwargs):
+    #     print("Вызов __new__ для", str(cls))
+    #     return super().__new__(cls)
+
+    def __init__(self, x=0, y=0):
         self.x = x
         self.y = y
         print("Вызов метода __init__ взамен set_msg", x, y, str(self))
 
     def __del__(self):
+        Modbus.__instance = None
         print("Удаление объекта", str(self))
 
-    def set_msg(self, x, y):
-        self.x = x
-        self.y = y
-        print("Вызов метода get_msg", x, y, str(self))
+    # def set_msg(self, x, y):
+    #     self.x = x
+    #     self.y = y
+    #     print("Вызов метода get_msg", x, y, str(self))
 
     def get_msg(self):
         return self.x, self.y
@@ -25,23 +37,24 @@ class Modbus:
 
 if __name__ == "__main__":
     # Modbus.get_msg
-    get_msg = Modbus()
-    get_msg.set_msg(1, 2)
+    get_msg = Modbus(1, 3)
+    # get_msg.set_msg(1, 2)
     print(get_msg.get_msg())
-    Modbus.set_msg(get_msg, 12, 22)
+    # Modbus.set_msg(get_msg, 12, 22)
     get_msg.msg_length = 6
-    set_msg = Modbus()
+    set_msg = Modbus(1, 3)
     set_msg.msg_length = 9
-    Modbus.transaction_id += 1
-    print(get_msg.transaction_id, get_msg.msg_length, Modbus.transaction_id, Modbus.msg_length)
-    print(set_msg.transaction_id, set_msg.msg_length, Modbus.transaction_id, Modbus.msg_length)
-    Modbus.transaction_id += 1
-    print(get_msg.transaction_id, Modbus.transaction_id)
-    print(set_msg.transaction_id, Modbus.transaction_id)
-    get_msg.transaction_id += 1
-    set_msg.transaction_id += 1
-    print(get_msg.transaction_id, Modbus.transaction_id)
-    print(set_msg.transaction_id, Modbus.transaction_id)
+    print(id(get_msg), id(set_msg))
+    # Modbus.transaction_id += 1
+    # print(get_msg.transaction_id, get_msg.msg_length, Modbus.transaction_id, Modbus.msg_length)
+    # print(set_msg.transaction_id, set_msg.msg_length, Modbus.transaction_id, Modbus.msg_length)
+    # Modbus.transaction_id += 1
+    # print(get_msg.transaction_id, Modbus.transaction_id)
+    # print(set_msg.transaction_id, Modbus.transaction_id)
+    # get_msg.transaction_id += 1
+    # set_msg.transaction_id += 1
+    # print(get_msg.transaction_id, Modbus.transaction_id)
+    # print(set_msg.transaction_id, Modbus.transaction_id)
 
 
 class ReadRegister(Modbus):
