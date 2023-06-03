@@ -6,17 +6,21 @@ class Modbus:
     transaction_id = 0
     msg_length = 0
 
-    def get_msg(self, x, y):
+    def set_msg(self, x, y):
         self.x = x
         self.y = y
         print("Вызов метода get_msg ", x, y, str(self))
+
+    def get_msg(self):
+        return self.x, self.y
 
 
 if __name__ == "__main__":
     # Modbus.get_msg
     get_msg = Modbus()
-    get_msg.get_msg(1, 2)
-    Modbus.get_msg(get_msg, 1, 2)
+    get_msg.set_msg(1, 2)
+    print(get_msg.get_msg())
+    Modbus.set_msg(get_msg, 12, 22)
     get_msg.msg_length = 6
     set_msg = Modbus()
     set_msg.msg_length = 9
