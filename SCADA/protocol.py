@@ -6,10 +6,18 @@ class Modbus:
     transaction_id = 0
     msg_length = 0
 
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        print("Вызов метода __init__ взамен set_msg", x, y, str(self))
+
+    def __del__(self):
+        print("Удаление объекта", str(self))
+
     def set_msg(self, x, y):
         self.x = x
         self.y = y
-        print("Вызов метода get_msg ", x, y, str(self))
+        print("Вызов метода get_msg", x, y, str(self))
 
     def get_msg(self):
         return self.x, self.y
