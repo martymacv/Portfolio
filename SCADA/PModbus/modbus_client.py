@@ -12,6 +12,9 @@ class MBAPClient:
         self.byte_count = None
         self.response_mask_message = ""
 
+    def __del__(self):
+        self.register_values = b""
+
     @classmethod
     def __next_transaction_id(cls):
         cls.transaction_id += 1
@@ -37,6 +40,7 @@ class MBAPClient:
         self.quantity_registers = len(register_values)
         self.byte_count = 2 * self.quantity_registers
         self.response_mask_message = ">HHHBB" + "HH"
+        self.register_values = b""
         for i in range(len(register_values)):
             self.register_values += struct.pack(">" + data_type, register_values[i])
         return MBAPClient.__create_header(MBAPClient.__calc_length(self.byte_count, self.quantity_registers)) \
@@ -54,12 +58,12 @@ class MBAPClient:
             00 01 02 03 04 05 06 (Byte number   DEC)
     Client: 00 01 00 00 xx xx 01 (Transmit byte HEX)
             |  |  |  |  |  |  |  ('>HHHB') Pack/unpack struct (Big-endian Byte order)
-            |  |  |  |  |  |  +- (Bx3) Slave address (usually constant)
-            |  |  |  |  |  +---- (Hx2) Message length low byte (variable) - after this
-            |  |  |  |  +------- (Hx2) Message length high byte (variable)
-            |  |  |  +---------- (Hx1) Protocol Identifier low byte (constant)
-            |  |  +------------- (Hx1) Protocol Identifier high byte (constant)
-            |  +---------------- (Hx0) Transaction Identifier low byte (counter)
+            |  |  |  |  |  |  +- (Bx6) Slave address (usually constant)
+            |  |  |  |  |  +---- (Hx5) Message length low byte (variable) - after this
+            |  |  |  |  +------- (Hx4) Message length high byte (variable)
+            |  |  |  +---------- (Hx3) Protocol Identifier low byte (constant)
+            |  |  +------------- (Hx2) Protocol Identifier high byte (constant)
+            |  +---------------- (Hx1) Transaction Identifier low byte (counter)
             +------------------- (Hx0) Transaction Identifier high byte (counter) 
     """
     """
@@ -84,7 +88,7 @@ class MBAPClient:
 
 
 if __name__ == "__main__":
-
+    """Test"""
     client1 = MBAPClient()
     request = client1.get_register_values(0, 16)
     print(client1.response_mask_message)
@@ -92,10 +96,11 @@ if __name__ == "__main__":
     print(client1.response_mask_message)
 
     client2 = MBAPClient()
-    request = client2.set_register_values(0, 'H', [65535, 0, 255])
-    x = b'\x00\x03\x00\x00\x00\r\x01\x10\x00\x00\x00\x03'
-    print(client2.response_handler(x))
-    print(request)
+    for i in range(10):
+        request = client2.set_register_values(0, 'H', [65535, 0, 255])
+        x = b'\x00\x03\x00\x00\x00\r\x01\x10\x00\x00\x00\x03'
+        print(client2.response_handler(x))
+        print(request)
     print(client1.__dict__)
     print(client2.__dict__)
     print(MBAPClient.__dict__)
