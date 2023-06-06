@@ -2,47 +2,44 @@ import argparse
 import asyncio
 import socket
 import time
-# from threading import Thread
+from py_class_learn import Modbus
+from PModbus import modbus_client
+from threading import Thread, Lock, Semaphore
 
 
 class Controller:
-    """Контроллер способен одновременно (в многопоточном режиме)
-       опрашивать 10 устройств, которые производят различные измерения,
+    """Контроллер способен последовательно опрашивать любое количество
+       подключенных к сети устройств, которые производят различные измерения,
        преобразуя их в элетрический сигнал (мА или мВ)"""
-    def __init__(self, ip="localhost", port=2000):
-        self.ip = ip
+    ip = "localhost"
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    client = modbus_client.MBAPClient()
+
+    def __init__(self, port=2000):
         self.port = port
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     """Что должен уметь наш контроллер:
        1. Отправлять get-запрос по UDP-сокету
        2. Сохранять значение в базу"""
-    async def get(self):
-        print(F"Controller IP: {self.ip}, port: {self.port} is run...")
-        await asyncio.sleep(0.1)
-        self.sock.settimeout(55)
-        while True:
-            request = b"ping"
-            self.sock.sendto(request, (self.ip, self.port))
-            # await asyncio.sleep(0.1)
+
+    def get(self):
+        Controller.udp_socket.settimeout(5)
+        try:
+            request = Controller.client.get_register_values(0, 1)
+            Controller.udp_socket.sendto(request, (Controller.ip, self.port))
             print(f"request {request}")
-            response, *address = self.sock.recvfrom(1024)
+            response, *address = Controller.udp_socket.recvfrom(1024)
             print(f"response {response} from {address}")
-            await asyncio.sleep(5)
+        except ConnectionResetError:
+            print("ConnectionResetError")
+        except TimeoutError:
+            self.get()
 
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser(description='Script so useful.')
-    # parser.add_argument("--sp", type=int, default=2000)
-    # parser.add_argument("--qp", type=int, default=1)
-    #
-    # args = parser.parse_args()
-    #
-    # start_port = args.sp
-    # quantity_ports = args.qp
 
-    async def starter():
-        await asyncio.gather(*[Controller(port=i).get() for i in range(2000, 2010)])
+    connections = [Controller(port=i) for i in range(2000, 2010)]
 
-    asyncio.run(starter())
-
+    while True:
+        for connection in connections:
+            connection.get()
 
