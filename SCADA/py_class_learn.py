@@ -1,6 +1,8 @@
 import random
 import struct
 
+"""Это учебный скрипт, который в последующем превратится в частичную реализацию протокола Modbus"""
+
 
 class Modbus:
     """MODBUS Aplication Protocol"""
