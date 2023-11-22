@@ -35,6 +35,16 @@ def greet(*args):
             str += ' and '
     str += '!'
     return "Hello, " + str
+def print_products(*args):
+    valid_args = [arg for arg in args if type(arg) == str and arg != '']
+    if len(valid_args):
+        for i in range(len(valid_args)):
+            print("{}) {}".format(i + 1, valid_args[i]))
+    else:
+        print('Нет продуктов')
+def info_kwargs(**kwargs):
+    for key in sorted(kwargs):
+        print("{}: {}".format(key, kwargs[key]))
 
 
 print(count_args(1, 2, 3))
@@ -44,4 +54,6 @@ print(mean())
 print(greet('Timur'))
 print(greet('Timur', 'Roman'))
 print(greet('Timur', 'Roman', 'Ruslan'))
-
+print_products('Бананы', [1, 2], ('Stepik',), 'Яблоки', '', 'Макароны', 5, True)
+print_products('', [1, 2], ('Stepik',), '', '', '', 5, True)
+info_kwargs(first_name='Timur', last_name='Guev', age=28, job='teacher')
