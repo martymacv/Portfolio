@@ -1,0 +1,40 @@
+{
+    "network": {
+        "ip_addresses": {
+            "general_ip": "",
+            "reserve_ip": ""
+        }
+    },
+    "json_config": {
+        "ServerLocalConfig": {
+            "role": {
+                "A": "True",
+                "B": "False"
+            }
+        },
+        "ServerRedundancyConfig": {
+            "mode": {
+                "Standalone": "True",
+                "Redundancy": "False"
+            }
+        },
+        "ServerOperationConfig": {
+
+        },
+        "IntercomConfig": {
+            "synapse-db-service": {
+                "ip_addresses": "127.0.0.1",
+                "ip_mask": "24",
+                "ip_port": 9990
+            },
+            "postgresql": {
+                "config": "127.0.0.1",
+                "hba_config": [
+                    "host postgres,synapse synapse 127.0.0.1/32 hba-scram-256",
+                    ""
+                ],
+                "": ""
+            }
+        }
+    }
+}
