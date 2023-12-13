@@ -66,7 +66,7 @@ def func(a, b):
 
 numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 total = reduce(func, numbers, 0)  # в качестве начального значения 0
-print(total)
+print("Hello, i am here!!!", total)
 
 
 # Модуль operator
