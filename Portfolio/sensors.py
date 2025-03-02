@@ -3,6 +3,9 @@ import random
 import socket
 import json
 from threading import Thread
+
+import cx_Oracle
+
 from registers import Register
 
 """Итак, я хочу создавать объекты типа "Датчик", который может:
@@ -94,3 +97,18 @@ if __name__ == "__main__":
     # Thread(target=sensor_1.run).start()
     # Thread(target=sensor_2.run).start()
 
+    with cx_Oracle.connect(user=user,
+                           password=password,
+                           tns=tns,
+                           encoding='utf-8') as db_conn:
+        with db_conn.cursor() as cursor:
+            sql_text = (f"delete from {etl_objects[i][0]}.{etl_objects[i][1]} "
+                        "where my_column = 'my_variable'")
+            cursor.execute(sql_text)
+            cursor.execute('commit')
+            sql_text = (f"insert into {etl_objects[i][0]}.{etl_objects[i][1]} "
+                        "select * "
+                        f"from {etl_objects[i][0]}.{etl_objects[i][1]}@src_dblink "
+                        "where my_column = 'my_variable';")
+            cursor.execute(sql_text)
+            cursor.execute('commit')
