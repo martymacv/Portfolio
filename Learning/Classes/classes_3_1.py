@@ -1,5 +1,206 @@
 import sys
+import time
 
+
+class GeyserClassic:
+    MAX_DATE_FILTER = 100
+
+    def __init__(self):
+        self.slot_1 = None
+        self.slot_2 = None
+        self.slot_3 = None
+
+    def __setattr__(self, key, value):
+        try:
+            if self.__dict__[key] is None:
+                if key == 'slot_1' and type(value).__name__ == 'Mechanical':
+                    object.__setattr__(self, key, value)
+                elif key == 'slot_2' and type(value).__name__ == 'Aragon':
+                    object.__setattr__(self, key, value)
+                elif key == 'slot_3' and type(value).__name__ == 'Calcium':
+                    object.__setattr__(self, key, value)
+            else:
+                if value is None:
+                    object.__setattr__(self, key, value)
+        except KeyError:
+            object.__setattr__(self, key, None)
+
+    def add_filter(self, slot_num, filter):
+        if slot_num == 1:
+            self.slot_1 = filter
+        elif slot_num == 2:
+            self.slot_2 = filter
+        elif slot_num == 3:
+            self.slot_3 = filter
+
+    def remove_filter(self, slot_num):
+        if slot_num == 1:
+            self.slot_1 = None
+        elif slot_num == 2:
+            self.slot_2 = None
+        elif slot_num == 3:
+            self.slot_3 = None
+
+    def get_filters(self):
+        return self.slot_1, self.slot_2, self.slot_3
+
+    def water_on(self):
+        return all(map(lambda x: x is not None, [self.slot_1, self.slot_2, self.slot_3])) and all(map(lambda x: 0 <= time.time() - x.date <= self.MAX_DATE_FILTER, [self.slot_1, self.slot_2, self.slot_3]))
+
+
+class Filter:
+    def __init__(self, date: float):
+        self.date = date
+
+    def __setattr__(self, key, value):
+        try:
+            self.__dict__[key]
+        except KeyError:
+            object.__setattr__(self, key, value)
+
+
+class Aragon(Filter):
+    def __init__(self, date: float):
+        super().__init__(date)
+
+
+class Mechanical(Filter):
+    def __init__(self, date: float):
+        super().__init__(date)
+
+
+class Calcium(Filter):
+    def __init__(self, date: float):
+        super().__init__(date)
+
+
+a = Mechanical(time.time())
+print(f"{a.date = }")
+a.date = time.time()
+print(f"{a.date = }")
+
+my_water = GeyserClassic()
+my_water.add_filter(1, Mechanical(time.time()))
+my_water.add_filter(2, Aragon(time.time()))
+w = my_water.water_on() # False
+print(w)
+my_water.add_filter(3, Calcium(time.time()))
+w = my_water.water_on() # True
+print(w)
+f1, f2, f3 = my_water.get_filters()  # f1, f2, f3 - ссылки на соответствующие объекты классов фильтров
+my_water.add_filter(3, Calcium(time.time())) # повторное добавление в занятый слот невозможно
+my_water.add_filter(2, Calcium(time.time())) # добавление в "чужой" слот также невозможно
+my_water.remove_filter(1)
+w = my_water.water_on() # True
+print(w)
+
+sys.exit()
+class Dimensions:
+    MIN_DIMENSION = 10
+    MAX_DIMENSION = 1000
+
+    def __init__(self, a, b, c):
+        self.__a = a
+        self.__b = b
+        self.__c = c
+
+    def get_a(self):
+        return self.__a
+
+    def set_a(self, number):
+        self.__a = number
+
+    a = property(get_a, set_a)
+
+    @property
+    def b(self):
+        return self.__b
+
+    @b.setter
+    def b(self, number):
+        self.__b = number
+
+    @property
+    def c(self):
+        return self.__c
+
+    @c.setter
+    def c(self, number):
+        self.__c = number
+
+    def __getattribute__(self, item):
+        return object.__getattribute__(self, item)
+
+    def __getattr__(self, item):
+        return False
+
+    def __setattr__(self, key, value):
+        if key in ('MIN_DIMENSION', 'MAX_DIMENSION', ):
+            raise AttributeError("Менять атрибуты MIN_DIMENSION и MAX_DIMENSION запрещено.")
+        else:
+            if type(value) in (float, int) and self.MIN_DIMENSION <= value <= self.MAX_DIMENSION:
+                object.__setattr__(self, key, value)
+
+
+d = Dimensions(10, 20, 30)
+
+a, b, c = d.a, d.b, d.c  # a=10.5, b=15, c=30
+# d.MAX_DIMENSION = 10  # исключение AttributeError
+print(d.a, d.b, d.c)
+
+
+sys.exit()
+class Circle:
+    def __init__(self, x, y, radius):
+        self.__x = x
+        self.__y = y
+        self.__radius = radius
+
+    def __getattr__(self, item):
+        return False
+
+    def __setattr__(self, key, value):
+        print(key, value)
+        if key in ('_Circle__x', '_Circle__y', 'x', 'y') and type(value) in (int, float):
+            object.__setattr__(self, key, value)
+        elif key in ('_Circle__radius', 'radius') and type(value) in (int, float):
+            if value >= 0.0:
+                object.__setattr__(self, key, value)
+            else:
+                pass
+        else:
+            raise TypeError("Неверный тип присваиваемых данных.")
+
+    def get_x(self):
+        return self.__x
+
+    def get_y(self):
+        return self.__y
+
+    def get_radius(self):
+        return self.__radius
+
+    def set_x(self, x):
+        self.__x = x
+
+    def set_y(self, y):
+        self.__y = y
+
+    def set_radius(self, radius):
+        self.__radius = radius
+
+    x = property(get_x, set_x)
+    y = property(get_y, set_y)
+    radius = property(get_radius, set_radius)
+
+
+circle = Circle(10.5, 7, 22)
+circle = Circle('', 7, 22)
+circle.radius = -10 # прежнее значение не должно меняться, т.к. отрицательный радиус недопустим
+x, y = circle.x, circle.y
+res = circle.name # False, т.к. атрибут name не существует
+
+sys.exit()
 
 class SmartPhone:
     def __init__(self, model):

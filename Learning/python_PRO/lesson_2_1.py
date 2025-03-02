@@ -1,5 +1,16 @@
 import sys
+import time
 
+# start = time.perf_counter_ns()
+# print(*['ХА'] * 4)
+# print(time.perf_counter_ns() - start)
+
+start = time.perf_counter_ns()
+print(" ".join(['ХА'] * 4))
+print(time.perf_counter_ns() - start)
+
+
+sys.exit(999)
 
 def recursion(x: str, y: str, cnt: int):
     if x == y:

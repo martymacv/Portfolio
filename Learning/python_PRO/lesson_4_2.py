@@ -4,19 +4,22 @@ from datetime import datetime
 import time
 
 
+# у меня есть таблица и в ней нужно найти все строки с минимальной ценой на продукт
+
+
 def filter_by_row(row: dict) -> tuple:
     return list(row.items())[0], min(list(row.items())[1:], key=lambda x: int(x[1]))
 
 
 def filter_by_column(fields: list) -> list:
-    return list(filter(lambda y: int(y[1][1]) == min(fields, key=lambda x: int(x[1][1])), sorted(fields, key=lambda x: int(x[1][1]))))
+    min_price = min(fields, key=lambda x: int(x[1][1]))[1][1]
+    return sorted(list(map(lambda x: (x[1], x[0]), filter(lambda y: y[1][1] == min_price, fields))))
 
 
 with open('prices.csv', 'r', encoding='utf-8') as csv_file:
     data = csv.DictReader(csv_file, delimiter=';')
-    # print(*list(map(filter_by_row, list(data))), sep='\n')
-    print(filter_by_column(list(map(filter_by_row, list(data)))))
-    # sys.stdout.writelines(': '.join([product_name[0], shop_name[1]]))
+    product_name, shop_name = filter_by_column(list(map(filter_by_row, list(data))))[0]
+    sys.stdout.writelines(': '.join([product_name[0], shop_name[1]]))
 
 
 sys.exit(999)
